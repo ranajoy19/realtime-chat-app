@@ -1,0 +1,108 @@
+{% extends 'chat/base.html' %} {% block content %}
+<br />
+
+<div
+  id="chat-log"
+  style="
+    background-color: whitesmoke;
+    color: #1b2430;
+    width: 80%;
+    height: 500px;
+    margin-left: 1%;
+    padding: 3%;
+    overflow-y: scroll;
+  "
+>
+  <!-- { to load the previous massage of the selected room from database } -->
+
+  {% for message in messages %} {% if message.sender_user == user %}
+  <div style="float: right">{{message.sender_user}}: {{message.massage}}</div>
+  {% else %}
+  <div style="float: left">{{message.sender_user}}: {{message.massage}}</div>
+  {% endif %}
+  <br /><br />
+  {% endfor %}
+</div>
+<div style="margin-left: 1%; padding: 1%">
+  <input
+    id="chat-message-input"
+    type="text"
+    size="60"
+    style="width: 22%"
+  />&nbsp;
+  <input
+    id="chat-message-submit"
+    type="button"
+    value="Send"
+    style="width: 13%; color: white; background-color: #1b2430"
+  />
+</div>
+
+{{ room_name|json_script:"room-name" }}
+<script>
+  // {# setting variables to display on the chat log #)
+  var sender = "{{ sender_id }}";
+  var receiver = "{{ receiver_id }}";
+  var sender_name = "{{ sender_name }}";
+  var user = "{{ user }}";
+
+  const roomName = JSON.parse(document.getElementById("room-name").textContent);
+
+  //   {# setting the websocket route as per the selected room nane#}
+
+  const chatSocket = new WebSocket(
+    "ws://" + window.location.host + "/ws/chat/" + roomName + "/"
+  );
+  chatSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    console.log("data", data, sender_name, user);
+
+    // {# to enhance the chat log #)
+    if (data.sender_name === user) {
+      $("#chat-log").append(
+        "<div style='float: right'>" +
+          data.sender_name +
+          " : " +
+          data.message +
+          "</div><br><br>"
+      );
+    } else {
+      $("#chat-log").append(
+        "<div style='float: left'>" +
+          data.sender_name +
+          " : " +
+          data.message +
+          "</div><br><br>"
+      );
+    }
+    $("#chat-log").scrollTop($("#chat-log")[0].scrolHeight);
+  };
+  chatSocket.onclose = function (e) {
+    console.error("Chat socket closed unexpectedly");
+  };
+
+  document.querySelector("#chat-message-input").focus();
+  document.querySelector("#chat-message-input").onkeyup = function (e) {
+    if (e.keycode == 13) {
+      // enter, return
+
+      document.querySelector("#chat-message-submit").click();
+    }
+  };
+
+  document.querySelector("#chat-message-submit").onclick = function (e) {
+    const messageInputDom = document.querySelector("#chat-message-input");
+    const message = messageInputDom.value;
+    chatSocket.send(
+      JSON.stringify({
+        message: message,
+        sender: sender,
+        receiver: receiver,
+        sender_name: sender_name,
+      })
+    );
+    messageInputDom.value = "";
+  };
+</script>
+
+{% endblock %}
