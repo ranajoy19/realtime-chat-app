@@ -133,6 +133,7 @@ class ChatRoom(LoginRequiredMixin, View):
         # get all the previous messages from the database
         messages = Message.objects.filter (Q(sender_user=sender,
         receiver_user=receiver) | Q(sender_user=receiver,receiver_user=sender)).order_by('timestamp')
+        print(messages[0].timestamp.strftime("%X"))
         return render (request, "chat/room.html", {
             'room_name':room_name,
             'sender_id': sender,

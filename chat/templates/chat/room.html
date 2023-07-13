@@ -1,6 +1,41 @@
 {% extends 'chat/base.html' %} {% block content %}
 <br />
-
+<style>
+  .msg {
+    background: #d3d8e4;
+    min-width: 50px;
+    padding: 10px;
+    border-radius: 2px;
+    word-break: break-all;
+  }
+  .msg .user {
+    font-size: 14px;
+    margin: 0 0 2px 0;
+    color: #666;
+    font-weight: 700;
+    margin-top: -2px;
+    margin-bottom: 5px;
+    transition: all 0.2s ease;
+    -webkit-touch-callout: none;
+  }
+  .msg p {
+    font-size: 13px;
+    margin: 0 0 2px 0;
+    color: #777;
+    transition: all 0.2s ease;
+  }
+  .msg time {
+    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.35);
+    margin-top: 1px;
+    float: right;
+    cursor: default;
+  }
+  .other .msg {
+    border-top-left-radius: 0px;
+    box-shadow: -1px 2px 0px #c1cbcd;
+  }
+</style>
 <div
   id="chat-log"
   style="
@@ -16,10 +51,21 @@
   <!-- { to load the previous massage of the selected room from database } -->
 
   {% for message in messages %} {% if message.sender_user == user %}
-  <div style="float: right">{{message.sender_user}}: {{message.massage}}</div>
+  <div class="msg" style="float: right">
+    <div class="user">{{message.sender_user}}</div>
+    <p>{{message.massage}}</p>
+    <time>{{message.timestamp.time}}</time>
+  </div>
+  <br /><br />
+  <br /><br />
   {% else %}
-  <div style="float: left">{{message.sender_user}}: {{message.massage}}</div>
+  <div class="msg" style="float: left">
+    <div class="user">{{message.sender_user}}</div>
+    <p>{{message.massage}}</p>
+    <time>{{message.timestamp.time}}</time>
+  </div>
   {% endif %}
+  <br /><br />
   <br /><br />
   {% endfor %}
 </div>
@@ -60,19 +106,31 @@
     // {# to enhance the chat log #)
     if (data.sender_name === user) {
       $("#chat-log").append(
-        "<div style='float: right'>" +
+        "<div class='msg' style='float: right'>" +
+          "<div class='user'>" +
           data.sender_name +
-          " : " +
+          "</div> " +
+          "<p>" +
           data.message +
-          "</div><br><br>"
+          "</p>" +
+          "<time>" +
+          data.time +
+          "</time>" +
+          "</div><br /><br /><br /><br />"
       );
     } else {
       $("#chat-log").append(
-        "<div style='float: left'>" +
+        "<div class='msg' style='float: left'>" +
+          "<div class='user'>" +
           data.sender_name +
-          " : " +
+          "</div> " +
+          "<p>" +
           data.message +
-          "</div><br><br>"
+          "</p>" +
+          "<time>" +
+          data.time +
+          "</time>" +
+          "</div><br /><br /><br /><br />"
       );
     }
     $("#chat-log").scrollTop($("#chat-log")[0].scrolHeight);

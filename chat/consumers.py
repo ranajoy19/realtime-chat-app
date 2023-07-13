@@ -1,6 +1,6 @@
 # chat/consumers.py
 import json
-
+from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from .models import Message
@@ -66,4 +66,6 @@ class ChatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"message": message,
                                         'sender':sender,
                                         'receiver':receiver,
-                                        'sender_name':sender_name}))
+                                        'sender_name':sender_name,
+                                        'time':f"{datetime.now().strftime('%I:%M %p')}"}
+                                        ))
