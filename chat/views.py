@@ -63,57 +63,64 @@ def Login(request):
 
 class GetAllUsers(LoginRequiredMixin,View):
     def get(self,request):
-        
-        """
-        get the all user from the database
-        """
-        users =User.objects.exclude(id=request.user.id)
+        try:
 
-        return render(request,'chat/all_users.html',{"users":users}  )
-    
+        
+            """
+            get the all user from the database
+            """
+            users =User.objects.exclude(id=request.user.id)
+
+            return render(request,'chat/all_users.html',{"users":users}  )
+        except BaseException as E:
+            print("e",E)
     def post(self,request):
-        """
-        get the sender and receiver users and connect them with each othres respective rooms
-        
-        """
-        sender = request.user.id
-        receiver = request.POST['users']
-        sender_user = User.objects.get(id=sender)
-        receiver_user = User.objects.get(id=receiver)
-        """
-            Setting the receiver_user as a session veriable
-        """
-        request.session['receiver_user']=receiver
+        try:
+            print("inside")
+            """
+            get the sender and receiver users and connect them with each othres respective rooms
+            
+            """
+            sender = request.user.id
+            receiver = request.POST['users']
+            sender_user = User.objects.get(id=sender)
+            receiver_user = User.objects.get(id=receiver)
+            """
+                Setting the receiver_user as a session veriable
+            """
+            request.session['receiver_user']=receiver
 
-        # check if the sender and receiver already have a room
+            # check if the sender and receiver already have a room
 
-        get_room = Room.objects.filter(Q(sender_user=sender_user,receiver_user=receiver_user)|
-                                       Q(sender_user=receiver_user,receiver_user=sender_user))
-
-
-        # fetch the room if already exist
-
-        if get_room:
-            room_name =get_room[0].room_name
-        else:
-            # create a new room if room doesn't exist
-
-            new_room = get_random_string(10)
-            while True:
-                room_exist = Room.objects.filter(room_name=new_room)
-                if room_exist:
-                    new_room = get_random_string(10)
-                else:
-                    break
-
-            create_room = Room.objects.create(sender_user=sender_user,receiver_user=receiver_user,
-                                              room_name=new_room)
-            create_room.save()
-            room_name =create_room.room_name
-
-        return redirect('room',room_name=room_name)
+            get_room = Room.objects.filter(Q(sender_user=sender_user,receiver_user=receiver_user)|
+                                        Q(sender_user=receiver_user,receiver_user=sender_user))
+            print("get_room",get_room)
 
 
+            # fetch the room if already exist
+
+            if get_room:
+                room_name =get_room[0].room_name
+            else:
+                # create a new room if room doesn't exist
+
+                new_room = get_random_string(10)
+                while True:
+                    room_exist = Room.objects.filter(room_name=new_room)
+                    if room_exist:
+                        new_room = get_random_string(10)
+                    else:
+                        break
+
+                create_room = Room.objects.create(sender_user=sender_user,receiver_user=receiver_user,
+                                                room_name=new_room)
+                create_room.save()
+                room_name =create_room.room_name
+
+            return redirect('room',room_name=room_name)
+
+        except BaseException as e:
+            print("eee",e)
 class ChatRoom(LoginRequiredMixin, View):
     queryset = Room.objects.all()
 
@@ -133,7 +140,7 @@ class ChatRoom(LoginRequiredMixin, View):
         # get all the previous messages from the database
         messages = Message.objects.filter (Q(sender_user=sender,
         receiver_user=receiver) | Q(sender_user=receiver,receiver_user=sender)).order_by('timestamp')
-        print(messages[0].timestamp.strftime("%X"))
+        # print(messages[0].timestamp.strftime("%X"))
         return render (request, "chat/room.html", {
             'room_name':room_name,
             'sender_id': sender,
