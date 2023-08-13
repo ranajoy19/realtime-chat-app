@@ -41,7 +41,7 @@
   style="
     background-color: whitesmoke;
     color: #1b2430;
-    width: 80%;
+    width: 90%;
     height: 500px;
     margin-left: 1%;
     padding: 3%;
@@ -56,8 +56,7 @@
     <p>{{message.massage}}</p>
     <time>{{message.timestamp.time}}</time>
   </div>
-  <br /><br />
-  <br /><br />
+
   {% else %}
   <div class="msg" style="float: left">
     <div class="user">{{message.sender_user}}</div>
@@ -67,6 +66,8 @@
   {% endif %}
   <br /><br />
   <br /><br />
+  <br /><br />
+
   {% endfor %}
 </div>
 <div style="margin-left: 1%; padding: 1%">
@@ -116,7 +117,7 @@
           "<time>" +
           data.time +
           "</time>" +
-          "</div><br /><br /><br /><br />"
+          "</div>"
       );
     } else {
       $("#chat-log").append(
@@ -130,7 +131,7 @@
           "<time>" +
           data.time +
           "</time>" +
-          "</div><br /><br /><br /><br />"
+          "</div><br /><br /><br /><br /><br /><br />"
       );
     }
     $("#chat-log").scrollTop($("#chat-log")[0].scrolHeight);
